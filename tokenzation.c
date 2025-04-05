@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/05 15:24:04 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/05 20:43:59 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/05 20:54:39 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,23 +138,23 @@ int	cmd_type(t_token *token, int first_cmd)
 
 t_type	token_type(t_token *token)
 {
-	if (strcmp(token->value, "\"") == 0)
+	if (ft_strcmp(token->value, "\"") == 0)
         return (SINGLE_QUOTE);
-	else if (strcmp(token->value, "'") == 0)
+	else if (ft_strcmp(token->value, "'") == 0)
         return (DOUBLE_QUOTE);
-    else if (strcmp(token->value, "|") == 0)
+    else if (ft_strcmp(token->value, "|") == 0)
         return (PIPE);
-    else if (strcmp(token->value, "<") == 0)
-        return (REDIR_IN);
-    else if (strcmp(token->value, ">") == 0)
-        return (REDIR_OUT);
-    else if (strcmp(token->value, ">>") == 0)
+    else if (ft_strcmp(token->value, ">>") == 0)
         return (APPEND);
-    else if (strcmp(token->value, "<<") == 0)
+    else if (ft_strcmp(token->value, "<<") == 0)
         return (HEREDOC);
-    else if (strcmp(token->value, "(") == 0)
+    else if (ft_strcmp(token->value, "<") == 0)
+        return (REDIR_IN);
+    else if (ft_strcmp(token->value, ">") == 0)
+        return (REDIR_OUT);
+    else if (ft_strcmp(token->value, "(") == 0)
         return (OPEN_PAREN);
-    else if (strcmp(token->value, ")") == 0)
+    else if (ft_strcmp(token->value, ")") == 0)
         return (CLOSE_PAREN);
     else if (cmd_type(token, 0) == 1)
         return CMD;
