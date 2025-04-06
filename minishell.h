@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 12:58:09 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/05 20:25:11 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/06 11:33:05 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <sys/types.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <string.h>
 
 #define MAX_PIPES 1024
 typedef struct s_data
@@ -41,8 +42,8 @@ typedef struct s_lexer
 
 
 typedef enum s_type {
-	WORD,
     CMD,      		// cmd
+	WORD,
 	PIPE,			// |
 	SINGLE_QUOTE,	// '
 	DOUBLE_QUOTE,	// "
@@ -51,7 +52,9 @@ typedef enum s_type {
     APPEND,         // >>
     HEREDOC,        // <<
     OPEN_PAREN,  	// (
-    CLOSE_PAREN 	  // )
+    CLOSE_PAREN, 	  // )
+	OR,
+	AND
 } t_type;
 
 typedef struct s_token
