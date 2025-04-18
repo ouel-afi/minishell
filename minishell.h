@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 12:58:09 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/16 15:29:09 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/18 17:59:50 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef struct s_token {
 }	t_token;
 
 typedef struct s_tree {
+	t_token *redir;
 	t_type *type;
 	char *value;
 	struct s_tree	*left;

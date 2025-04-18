@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/18 15:58:57 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/18 18:57:21 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,30 +25,6 @@ void	print_tree(t_tree *node, int depth, const char *side)
 	print_tree(node->left, depth + 1, "L");
 	print_tree(node->right, depth + 1, "R");
 }
-
-
-// void	print_tree(t_tree *root)
-// {
-// 	if (!root)
-// 		return;
-// 	print_tree(root->left);
-// 	printf("%s\n", root->value);
-// 	print_tree(root->right);
-// }
-
-// void print_tree(t_tree *node, int depth)
-// {
-// 	(void)depth;
-// 	if (node)
-// 	{
-// 		printf("value %s\n",node->value);
-// 		// printf("value %s\n",node->left->value);
-// 		// printf("value %s\n",node->right->value);
-		
-// 		print_tree(node->left->value,depth);
-// 		print_tree(node->right->value,depth);
-// 	}
-// }
 
 void	print_linked_list(t_token *token_list)
 {
@@ -358,11 +334,34 @@ t_token *sub_left(t_token *token, t_token *opr)
 	return (head);
 }
 
-t_tree	*parse_cmd(t_token *token)
+t_tree *parse_cmd(t_token *token)
 {
-	if (token->type == 1)
-		return(create_tree_node(token));
-	return NULL;
+	// if (token->type == 1 && (!token->next || token->next->type == 1))
+	if (token->next && token->next->type != 1)
+	{
+		t_token *current;
+		t_token *copy = current;
+		t_token *tmp =  token->next;
+		// size_t redir;
+		// char *value;
+		while (tmp)
+		{
+			printf("1\n");
+			current = malloc(sizeof(t_token));
+			if (!current)
+				return NULL;
+		// 	// redir = tmp->type;
+			current->type = tmp->type;
+			tmp = tmp->next;
+		// 	// value = tmp->value;
+			current->value = ft_strdup(tmp->value);
+			tmp = tmp->next;
+			current = current->next; 
+		}
+		print_linked_list(current);
+		printf("2\n");
+	}
+	return(create_tree_node(token));
 }
 
 t_tree	*parse_paren(t_token *token)
@@ -396,31 +395,6 @@ t_tree	*parse_paren(t_token *token)
 	// printf("\n");
 	return(parse_op(sub_token));
 }
-
-// t_tree	*parse_redir(t_token *token)
-// {
-// 	t_token *redir = get_last_redir(token);
-// 	t_token *left_token = NULL;
-// 	t_token *right_token = NULL;
-// 	t_token *tmp = token;
-
-// 	if (redir)
-// 	{
-// 		t_tree *node = create_tree_node(token);
-// 		left_token = sub_left(tmp, pipe);
-// 		printf("pipe_left_token : ");
-// 		print_linked_list(left_token);
-// 		printf("\n");
-// 		right_token = pipe->next;
-// 		printf("pipe_right_token : ");
-// 		print_linked_list(right_token);
-// 		printf("\n");
-// 		node->left = parse_pipes(left_token);
-// 		node->right = parse_pipes(right_token);
-// 		return (node);
-// 	}
-// 	return (parse_paren(token));
-// }
 
 t_tree	*parse_pipes(t_token *token)
 {
@@ -459,13 +433,13 @@ t_tree	*parse_op(t_token *token)
 		t_tree *node = create_tree_node(opr);
 		// print_tree(node,0);
 		left_token = sub_left(tmp, opr);
-		printf("op_left_token : ");
-		print_linked_list(left_token);
-		printf("\n");
+		// printf("op_left_token : ");
+		// print_linked_list(left_token);
+		// printf("\n");
 		right_token = opr->next;
-		printf("op_right_token : ");
-		print_linked_list(right_token);
-		printf("\n");
+		// printf("op_right_token : ");
+		// print_linked_list(right_token);
+		// printf("\n");
 		node->left = parse_op(left_token);
 		node->right = parse_op(right_token);
 		return (node);
