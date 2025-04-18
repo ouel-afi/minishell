@@ -1,54 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ouail.c                                            :+:      :+:    :+:   */
+/*   test.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/18 15:58:57 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/16 10:55:28 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	print_tree(t_tree *node, int depth, const char *side)
+void	print_tree(t_tree *root)
 {
-	if (!node)
+	if (!root)
 		return;
-	for (int i = 0; i < depth; i++)
-		printf("  ");
-	printf("[%s]", side);
-	if (node->value)
-		printf(" | value: %s", node->value);
-	printf("\n");
-	print_tree(node->left, depth + 1, "L");
-	print_tree(node->right, depth + 1, "R");
+	print_tree(root->left);
+	printf("%s\n", root->token->value);
+	print_tree(root->right);
 }
 
-
-// void	print_tree(t_tree *root)
-// {
-// 	if (!root)
-// 		return;
-// 	print_tree(root->left);
-// 	printf("%s\n", root->value);
-// 	print_tree(root->right);
-// }
-
-// void print_tree(t_tree *node, int depth)
-// {
-// 	(void)depth;
-// 	if (node)
-// 	{
-// 		printf("value %s\n",node->value);
-// 		// printf("value %s\n",node->left->value);
-// 		// printf("value %s\n",node->right->value);
-		
-// 		print_tree(node->left->value,depth);
-// 		print_tree(node->right->value,depth);
-// 	}
-// }
 
 void	print_linked_list(t_token *token_list)
 {
@@ -264,8 +236,7 @@ t_tree *create_tree_node(t_token *token)
 	node = malloc(sizeof(t_tree));
 	if (!node)
 		return (NULL);
-	// node->type = token->type;
-	node->value = token->value;
+	node->token = token;
 	node->left = NULL;
 	node->right = NULL;
 	return (node);
@@ -273,7 +244,7 @@ t_tree *create_tree_node(t_token *token)
 
 // t_token *get_last_redir(t_token *token)
 // {
-// 	t_token *pipe = NULL;
+// 	t_token *redir = NULL;
 // 	t_token *tmp;
 // 	size_t	paren = 0;
 
@@ -358,12 +329,10 @@ t_token *sub_left(t_token *token, t_token *opr)
 	return (head);
 }
 
-t_tree	*parse_cmd(t_token *token)
-{
-	if (token->type == 1)
-		return(create_tree_node(token));
-	return NULL;
-}
+// t_tree	*parse_redir()
+// {
+	
+// }
 
 t_tree	*parse_paren(t_token *token)
 {
@@ -371,7 +340,7 @@ t_tree	*parse_paren(t_token *token)
 	t_token *tmp = token;
 	size_t	paren = 0;
 	if (tmp->type != 9)
-		return(parse_cmd(token));
+		return(NULL);
 	while (tmp)
 	{
 		if (tmp->type == 9)
@@ -431,15 +400,15 @@ t_tree	*parse_pipes(t_token *token)
 
 	if (pipe)
 	{
-		t_tree *node = create_tree_node(pipe);
+		t_tree *node = create_tree_node(token);
 		left_token = sub_left(tmp, pipe);
-		// printf("pipe_left_token : ");
-		// print_linked_list(left_token);
-		// printf("\n");
+		printf("pipe_left_token : ");
+		print_linked_list(left_token);
+		printf("\n");
 		right_token = pipe->next;
-		// printf("pipe_right_token : ");
-		// print_linked_list(right_token);
-		// printf("\n");
+		printf("pipe_right_token : ");
+		print_linked_list(right_token);
+		printf("\n");
 		node->left = parse_pipes(left_token);
 		node->right = parse_pipes(right_token);
 		return (node);
@@ -456,16 +425,15 @@ t_tree	*parse_op(t_token *token)
 
 	if (opr)
 	{
-		t_tree *node = create_tree_node(opr);
-		// print_tree(node,0);
+		t_tree *node = create_tree_node(token);
 		left_token = sub_left(tmp, opr);
-		printf("op_left_token : ");
-		print_linked_list(left_token);
-		printf("\n");
+		// printf("op_left_token : ");
+		// print_linked_list(left_token);
+		// printf("\n");
 		right_token = opr->next;
-		printf("op_right_token : ");
-		print_linked_list(right_token);
-		printf("\n");
+		// printf("op_right_token : ");
+		// print_linked_list(right_token);
+		// printf("\n");
 		node->left = parse_op(left_token);
 		node->right = parse_op(right_token);
 		return (node);
@@ -473,7 +441,7 @@ t_tree	*parse_op(t_token *token)
 	return (parse_pipes(token));
 }
 
-int	main(int argc, char **argv, char **env)
+int	main(int argc, char **argv)
 {
 	char	*input;
 	t_lexer	*lexer;
@@ -482,10 +450,9 @@ int	main(int argc, char **argv, char **env)
 	t_tree	*node = NULL;
 
 	(void)argc;
-	(void)env;
 	(void)argv;
-	// signal(SIGQUIT, SIG_IGN);
-    // signal(SIGINT, handler);
+	signal(SIGQUIT, SIG_IGN);
+    signal(SIGINT, handler);
     rl_catch_signals = 0;
 	while (1)
 	{
@@ -515,27 +482,6 @@ int	main(int argc, char **argv, char **env)
 			// printf("token->value = %s			token->type = %d\n", token->value, token->type);
 		}
 		node = parse_op(token_list);
-		print_tree(node, 0, "NODE");
-		// printf("%s\n", node->left->token->value);
-		// write(1, "hh\n", 3);
-		// char *full_path = find_cmd_path(node->left->token->value, env);
-		// if (!full_path)
-		// {
-		// 	perror("command not found");
-		// 	return (1);
-		// }
-
-		// printf("Trying to exec: %s\n", full_path); // optional for debug
-
-		// if (execve(full_path, &node->left->token->value, env) == -1)
-		// {
-		// 	perror("execve failed");
-		// 	free(full_path);
-		// 	return (1);
-		// }
-
-		// free(full_path); // will never reach here if execve succeeds
-// 	return (0);
 		// t_token *current = token_list;
 		// while (current)
 		// {
@@ -560,7 +506,7 @@ int	main(int argc, char **argv, char **env)
 //     // int status;
 //     signal(SIGQUIT, SIG_IGN);
 //     signal(SIGINT, handler);
-//     t_env *envlist = init_env(env);
+//     // t_env *envlist = init_env(env);
 
 //     rl_catch_signals = 0;
 // 	while (1)
@@ -589,8 +535,8 @@ int	main(int argc, char **argv, char **env)
 //                 token->type = token_type(token);
 //                 append_token(&token_list, token);
 //             }
-//             execute_builtin(token_list, &envlist);
 //             parse_op(token_list);
+//             // execute_builtin(token_list, &envlist);
 //             free(input);
 //         }
 // 	}

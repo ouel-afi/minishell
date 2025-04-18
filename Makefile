@@ -37,7 +37,7 @@
 
 
 
-SRCS =  exec.c builtin.c main.c ouail.c
+SRCS =  ouail.c 
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
