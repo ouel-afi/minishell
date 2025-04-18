@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/18 18:57:21 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/18 20:28:10 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -350,6 +350,7 @@ t_tree *parse_cmd(t_token *token)
 			current = malloc(sizeof(t_token));
 			if (!current)
 				return NULL;
+				
 		// 	// redir = tmp->type;
 			current->type = tmp->type;
 			tmp = tmp->next;
