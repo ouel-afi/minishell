@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/18 20:28:10 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/18 20:29:39 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -336,34 +336,75 @@ t_token *sub_left(t_token *token, t_token *opr)
 
 t_tree *parse_cmd(t_token *token)
 {
-	// if (token->type == 1 && (!token->next || token->next->type == 1))
 	if (token->next && token->next->type != 1)
 	{
-		t_token *current;
-		t_token *copy = current;
-		t_token *tmp =  token->next;
-		// size_t redir;
-		// char *value;
-		while (tmp)
+		t_token *tmp = token->next;
+		t_token *head = NULL;
+		t_token *current = NULL;
+
+		while (tmp && tmp->next)
 		{
-			printf("1\n");
-			current = malloc(sizeof(t_token));
-			if (!current)
+			t_token *redir_token = tmp;         // odd token (type)
+			t_token *value_token = tmp->next;   // even token (value)
+
+			t_token *new_token = malloc(sizeof(t_token));
+			if (!new_token)
 				return NULL;
-				
-		// 	// redir = tmp->type;
-			current->type = tmp->type;
-			tmp = tmp->next;
-		// 	// value = tmp->value;
-			current->value = ft_strdup(tmp->value);
-			tmp = tmp->next;
-			current = current->next; 
+
+			new_token->type = redir_token->type;
+			new_token->value = ft_strdup(value_token->value);
+			new_token->next = NULL;
+
+			if (!head)
+			{
+				head = new_token;
+				current = new_token;
+			}
+			else
+			{
+				current->next = new_token;
+				current = current->next;
+			}
+
+			tmp = value_token->next; // advance by 2
 		}
-		print_linked_list(current);
-		printf("2\n");
+
+		print_linked_list(head); // To verify correctness
+		return create_tree_node(head); // or whatever you need
 	}
-	return(create_tree_node(token));
+	return create_tree_node(token);
 }
+
+
+// t_tree *parse_cmd(t_token *token)
+// {
+// 	// if (token->type == 1 && (!token->next || token->next->type == 1))
+// 	if (token->next && token->next->type != 1)
+// 	{
+// 		t_token *current;
+// 		t_token *copy = current;
+// 		t_token *tmp =  token->next;
+// 		// size_t redir;
+// 		// char *value;
+// 		while (tmp)
+// 		{
+// 			printf("1\n");
+// 			current = malloc(sizeof(t_token));
+// 			if (!current)
+// 				return NULL;
+// 		// 	// redir = tmp->type;
+// 			current->type = tmp->type;
+// 			tmp = tmp->next;
+// 		// 	// value = tmp->value;
+// 			current->value = ft_strdup(tmp->value);
+// 			tmp = tmp->next;
+// 			current = current->next; 
+// 		}
+// 		print_linked_list(current);
+// 		printf("2\n");
+// 	}
+// 	return(create_tree_node(token));
+// }
 
 t_tree	*parse_paren(t_token *token)
 {
