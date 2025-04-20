@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/20 16:03:44 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/20 17:29:09 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,7 +233,7 @@ void	append_token(t_token **head, t_token *token)
 	tmp->next = token;
 }
 
-t_tree *create_tree_node(t_token *token)
+t_tree *create_tree_node(t_token *token, char **cmd)
 {
 	t_tree	*node;
 
@@ -241,6 +241,8 @@ t_tree *create_tree_node(t_token *token)
 	if (!node)
 		return (NULL);
 	// node->type = token->type;
+	if (cmd != NULL)
+		node->cmd = cmd;
 	node->value = token->value;
 	node->left = NULL;
 	node->right = NULL;
@@ -336,9 +338,31 @@ t_token *sub_left(t_token *token, t_token *opr)
 
 t_tree *parse_cmd(t_token *token)
 {
+	write(1, "1\n", 2);
+	t_token *tmp = token;
+	char **value = NULL;
+	int i = 0;
+	print_linked_list(tmp);
+	write(1, "2\n", 2);
+	value = malloc(sizeof(char *) * 1000);
+	if (!value)
+		return NULL;
+	while (tmp->next && tmp->next->type == 1)
+	{
+		write(1, "enter\n", 6);
+		value[i] = tmp->value;
+		i++;
+		tmp = tmp->next;
+
+		if (!tmp->next || tmp->next->type != 1) {
+			write(1, "more than one word\n", 19);
+			break;
+		}
+	}
+	write(1, "5\n", 2);
 	if (token->next && token->next->type != 1)
 	{
-		t_token *tmp = token->next;
+		tmp = token->next;
 		t_token *head = NULL;
 		t_token *current = NULL;
 
@@ -369,10 +393,11 @@ t_tree *parse_cmd(t_token *token)
 			tmp = value_token->next;
 		}
 
-		print_linked_list(head);
-		return create_tree_node(head);
+		// print_linked_list(head);
+		return create_tree_node(head, NULL);
 	}
-	return create_tree_node(token);
+	write(1, "yes one cmd\n", 12);
+	return create_tree_node(token, value);
 }
 
 
@@ -412,7 +437,11 @@ t_tree	*parse_paren(t_token *token)
 	t_token *tmp = token;
 	size_t	paren = 0;
 	if (tmp->type != 9)
+	{
+		write(1, "yes cmd\n", 8);
 		return(parse_cmd(token));
+	}
+	write(1, "yes paren\n", 10);
 	while (tmp)
 	{
 		if (tmp->type == 9)
@@ -447,7 +476,8 @@ t_tree	*parse_pipes(t_token *token)
 
 	if (pipe)
 	{
-		t_tree *node = create_tree_node(pipe);
+		write(1, "yes pipe\n", 9);
+		t_tree *node = create_tree_node(pipe, NULL);
 		left_token = sub_left(tmp, pipe);
 		// printf("pipe_left_token : ");
 		// print_linked_list(left_token);
@@ -472,7 +502,8 @@ t_tree	*parse_op(t_token *token)
 
 	if (opr)
 	{
-		t_tree *node = create_tree_node(opr);
+		write(1, "yes op\n", 7);
+		t_tree *node = create_tree_node(opr, NULL);
 		// print_tree(node,0);
 		left_token = sub_left(tmp, opr);
 		// printf("op_left_token : ");
@@ -530,6 +561,7 @@ int	main(int argc, char **argv, char **env)
 			// node = create_tree_node(token_list);
 			// printf("token->value = %s			token->type = %d\n", token->value, token->type);
 		}
+		// print_linked_list(token_list);
 		node = parse_op(token_list);
 		print_tree(node, 0, "NODE");
         // execute_builtin(token_list, &envlist);
