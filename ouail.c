@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/18 20:29:39 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/20 16:03:44 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -344,8 +344,8 @@ t_tree *parse_cmd(t_token *token)
 
 		while (tmp && tmp->next)
 		{
-			t_token *redir_token = tmp;         // odd token (type)
-			t_token *value_token = tmp->next;   // even token (value)
+			t_token *redir_token = tmp;
+			t_token *value_token = tmp->next;
 
 			t_token *new_token = malloc(sizeof(t_token));
 			if (!new_token)
@@ -366,11 +366,11 @@ t_tree *parse_cmd(t_token *token)
 				current = current->next;
 			}
 
-			tmp = value_token->next; // advance by 2
+			tmp = value_token->next;
 		}
 
-		print_linked_list(head); // To verify correctness
-		return create_tree_node(head); // or whatever you need
+		print_linked_list(head);
+		return create_tree_node(head);
 	}
 	return create_tree_node(token);
 }
@@ -532,6 +532,7 @@ int	main(int argc, char **argv, char **env)
 		}
 		node = parse_op(token_list);
 		print_tree(node, 0, "NODE");
+        // execute_builtin(token_list, &envlist);
 		// printf("%s\n", node->left->token->value);
 		// write(1, "hh\n", 3);
 		// char *full_path = find_cmd_path(node->left->token->value, env);
@@ -605,7 +606,6 @@ int	main(int argc, char **argv, char **env)
 //                 token->type = token_type(token);
 //                 append_token(&token_list, token);
 //             }
-//             execute_builtin(token_list, &envlist);
 //             parse_op(token_list);
 //             free(input);
 //         }
