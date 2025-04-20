@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/20 18:04:06 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/20 18:14:08 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -352,6 +352,11 @@ t_tree *parse_cmd(t_token *token)
 	value = malloc(sizeof(char *) * 1000);
 	if (!value)
 		return NULL;
+	if (tmp && !tmp->next)
+	{
+		value[i] = tmp->value;
+		i++;
+	}
 	while (tmp->next && tmp->next->type == 1)
 	{
 		write(1, "enter\n", 6);
@@ -404,6 +409,7 @@ t_tree *parse_cmd(t_token *token)
 		// print_linked_list(head);
 		return create_tree_node(head, NULL);
 	}
+	value[i] = NULL;
 	write(1, "yes one cmd\n", 12);
 	return create_tree_node(token, value);
 }
@@ -571,7 +577,7 @@ int	main(int argc, char **argv, char **env)
 		}
 		// print_linked_list(token_list);
 		node = parse_op(token_list);
-		printf("after return : %s\n", *node->cmd);
+		printf("after return : %s\n", node->cmd[0]);
 		print_tree(node, 0, "NODE");
         // execute_builtin(token_list, &envlist);
 		// printf("%s\n", node->left->token->value);
