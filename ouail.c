@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/20 17:29:09 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/20 17:55:58 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,6 +240,10 @@ t_tree *create_tree_node(t_token *token, char **cmd)
 	node = malloc(sizeof(t_tree));
 	if (!node)
 		return (NULL);
+	for (int i = 0; cmd[i]; i++)
+	{
+		printf("cmd[%d] = %s\n", i, cmd[i]);
+	}
 	// node->type = token->type;
 	if (cmd != NULL)
 		node->cmd = cmd;
@@ -355,6 +359,9 @@ t_tree *parse_cmd(t_token *token)
 		tmp = tmp->next;
 
 		if (!tmp->next || tmp->next->type != 1) {
+			value[i] = tmp->value;
+			i++;
+			tmp = tmp->next;
 			write(1, "more than one word\n", 19);
 			break;
 		}
