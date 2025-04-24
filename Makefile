@@ -37,7 +37,7 @@
 
 
 
-SRCS =  ouail.c 
+SRCS =  ouail.c exec.c builtin.c tree.c check_path.c main.c
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
@@ -76,7 +76,7 @@ re: fclean all
 
 
 
-# SRCS = tokenzation.c exec.c builtin.c main.c
+# SRCS = exec.c builtin.c main.c test.c  tree.c check_path.c
 # CC = cc
 # CFLAGS = -Wall -Wextra -Werror
 # NAME = minishell
