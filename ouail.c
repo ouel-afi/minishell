@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/24 17:03:31 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/25 16:38:57 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,21 @@ t_lexer	*initialize_lexer(char *input)
 	lexer->lenght = ft_strlen(input);
 	lexer->position = 0;
 	return (lexer);
+}
+
+void	join_tokens(t_token *token)
+{
+	t_token	*next;
+	char	*joined;
+
+	if (!token || !token->next)
+		return ;
+	next = token->next;
+	joined = ft_strjoin(token->value, next->value);
+	if (!joined)
+		return ;
+	token->value = joined;
+	token->next = next->next;
 }
 
 int	is_space(t_lexer *lexer)
@@ -133,28 +148,97 @@ t_token	*handle_operations(t_lexer *lexer, char *oper, int i)
 	return (create_token(str, str[0], 0));
 }
 
-t_token	*handle_word(t_lexer *lexer)
-{
-	char	*word;
-	size_t	start;
-	size_t	lenght;
+// t_token	*handle_word(t_lexer *lexer)
+// {
+// 	char	*word = NULL;
+// 	size_t	start;
+// 	size_t	lenght;
 
-	start = lexer->position;
-	while (lexer->position < lexer->lenght && (!is_space(lexer)) 
-		&& lexer->input[lexer->position] != '\'' 
-		&& lexer->input[lexer->position] != '"' 
-		&& lexer->input[lexer->position] != '|' 
-		&& lexer->input[lexer->position] != '<' 
-		&& lexer->input[lexer->position] != '>' 
-		&& lexer->input[lexer->position] != '(' 
-		&& lexer->input[lexer->position] != ')'
-		&& lexer->input[lexer->position] != '&')
-		lexer->position++;
-	lenght = lexer->position - start;
-	word = ft_substr(lexer->input, start, lenght);
-	if (lexer->input[lexer->position] == 32)
-		return (create_token(word, word[0], 1));
-	return (create_token(word, word[0], 0));
+// 	start = lexer->position;
+// 	while (lexer->position < lexer->lenght && (!is_space(lexer)) 
+// 		&& lexer->input[lexer->position] != '\'' 
+// 		&& lexer->input[lexer->position] != '"' 
+// 		&& lexer->input[lexer->position] != '|' 
+// 		&& lexer->input[lexer->position] != '<' 
+// 		&& lexer->input[lexer->position] != '>' 
+// 		&& lexer->input[lexer->position] != '(' 
+// 		&& lexer->input[lexer->position] != ')'
+// 		&& lexer->input[lexer->position] != '&')
+// 		lexer->position++;
+// 	lenght = lexer->position - start;
+// 	if (lexer->input[lexer->position] == 32){
+// 		write(1, "oui\n", 4);
+// 		word = ft_substr(lexer->input, start, lenght);
+// 		return (create_token(word, word[0], 1));	
+// 	}
+// 	write(1, "non\n", 4);
+// 	word = ft_substr(lexer->input, start, lenght);
+// 	return (create_token(word, word[0], 0));
+// }
+
+t_token *handle_word(t_lexer *lexer)
+{
+    char    *result = ft_strdup("");
+    char    *temp = NULL;
+    size_t  start;
+    int     has_space = 0;
+    int     in_quotes = 0;
+
+    while (lexer->position < lexer->lenght && !is_space(lexer))
+    {
+        if (lexer->input[lexer->position] == '\'' || 
+            lexer->input[lexer->position] == '"')
+        {
+            // Handle quoted section
+            char quote = lexer->input[lexer->position++];
+            start = lexer->position;
+            in_quotes = 1;
+            
+            while (lexer->position < lexer->lenght && 
+                   lexer->input[lexer->position] != quote)
+                lexer->position++;
+
+            if (lexer->position >= lexer->lenght)
+            {
+                free(result);
+                return NULL;  // Unclosed quote
+            }
+
+            temp = ft_substr(lexer->input, start, lexer->position - start);
+            char *new_result = ft_strjoin(result, temp);
+            free(result);
+            free(temp);
+            result = new_result;
+            lexer->position++;
+            in_quotes = 0;
+        }
+        else if (!in_quotes && strchr("|<>()&", lexer->input[lexer->position]))
+        {
+            break;  // Stop at special characters
+        }
+        else
+        {
+            // If we were in quotes and now see non-space text, break to make new token
+            if (in_quotes)
+                break;
+
+            // Handle regular characters
+            start = lexer->position;
+            while (lexer->position < lexer->lenght &&
+                   !strchr("\"'|<>()& ", lexer->input[lexer->position]))
+                lexer->position++;
+
+            temp = ft_substr(lexer->input, start, lexer->position - start);
+            char *new_result = ft_strjoin(result, temp);
+            free(result);
+            free(temp);
+            result = new_result;
+        }
+    }
+
+    has_space = (lexer->position < lexer->lenght && 
+                lexer->input[lexer->position] == ' ');
+    return create_token(result, in_quotes ? 4 : 1, has_space);
 }
 
 t_token	*get_next_token(t_lexer *lexer)
@@ -227,19 +311,54 @@ t_type	token_type(t_token *token)
 		return (CMD);
 }
 
-void	append_token(t_token **head, t_token *token)
+void append_token(t_token **head, t_token *token)
 {
-	t_token *tmp;
+    t_token *tmp = NULL;
 
-	if (!*head)
-	{
-		*head = token;
-		return ;
-	}
-	tmp = *head;
-	while (tmp->next)
-		tmp = tmp->next;
-	tmp->next = token;
+    if (!token)
+        return;
+
+    if (!*head)
+    {
+        *head = token;
+        return;
+    }
+    tmp = *head;
+    while (tmp->next)
+        tmp = tmp->next;
+    tmp->next = token;
+}
+
+void merge_adjacent_quoted_tokens(t_token **tokens)
+{
+    t_token *current = *tokens;
+    t_token *prev = NULL;
+
+    while (current != NULL && current->next != NULL)
+    {
+        if (current->has_space == 0 && 
+            (current->type == SINGLE_QUOTE || 
+             current->type == DOUBLE_QUOTE ||
+             current->next->type == SINGLE_QUOTE ||
+             current->next->type == DOUBLE_QUOTE))
+        {
+            char *merged_value = ft_strjoin(current->value, current->next->value);
+            // free(current->value);
+            current->value = merged_value;
+            if (current->type == CMD || current->next->type == CMD)
+                current->type = CMD;
+            current->has_space = current->next->has_space;
+            t_token *to_delete = current->next;
+            current->next = to_delete->next;
+            // free(to_delete->value);
+            // free(to_delete);
+        }
+        else
+        {
+            prev = current;
+            current = current->next;
+        }
+    }
 }
 
 t_tree *create_tree_node(t_token *token, char **cmd)
@@ -413,38 +532,6 @@ t_tree *parse_cmd(t_token *token)
 	return create_tree_node(token, cmd_args);
 }
 
-
-
-// t_tree *parse_cmd(t_token *token)
-// { 
-// 	// if (token->type == 1 && (!token->next || token->next->type == 1))
-// 	if (token->next && token->next->type != 1)
-// 	{
-// 		t_token *current;
-// 		t_token *copy = current;
-// 		t_token *tmp =  token->next;
-// 		// size_t redir;
-// 		// char *value;
-// 		while (tmp)
-// 		{
-// 			printf("1\n");
-// 			current = malloc(sizeof(t_token));
-// 			if (!current)
-// 				return NULL;
-// 		// 	// redir = tmp->type;
-// 			current->type = tmp->type;
-// 			tmp = tmp->next;
-// 		// 	// value = tmp->value;
-// 			current->value = ft_strdup(tmp->value);
-// 			tmp = tmp->next;
-// 			current = current->next; 
-// 		}
-// 		print_linked_list(current);
-// 		printf("2\n");
-// 	}
-// 	return(create_tree_node(token));
-// }
-
 t_tree	*parse_paren(t_token *token)
 {
 	t_token *current;
@@ -511,129 +598,3 @@ t_tree	*parse_op(t_token *token)
 	}
 	return (parse_pipes(token));
 }
-
-// int	main(int argc, char **argv, char **env)
-// {
-// 	char	*input;
-// 	t_lexer	*lexer;
-// 	t_token	*token;
-// 	t_token *token_list = NULL;
-// 	t_tree	*node = NULL;
-
-// 	(void)argc;
-// 	(void)env;
-// 	(void)argv;
-// 	// signal(SIGQUIT, SIG_IGN);
-//     // signal(SIGINT, handler);
-//     rl_catch_signals = 0;
-// 	while (1)
-// 	{
-// 		input = readline("minishell> ");
-// 		if (!input)
-//         {
-//             write(1, "exit\n", 5);
-//             exit(0);
-//         }
-//         if (input[0] == '\0')
-//         {
-//             free(input);
-//             continue;
-//         }
-// 		add_history(input);
-// 		lexer = initialize_lexer(input);
-// 		token_list = NULL;
-// 		while (lexer->position < lexer->lenght)
-// 		{
-// 			token = get_next_token(lexer);
-// 			if (!token)
-// 				continue;
-// 			// if (token->type != 3 && token->type != 4)
-// 			token->type = token_type(token);
-// 			append_token(&token_list, token);
-// 			// node = create_tree_node(token_list);
-// 			// printf("token->value = %s			token->type = %d\n", token->value, token->type);
-// 		}
-// 		// print_linked_list(token_list);
-// 		node = parse_op(token_list);
-// 		printf("after return : %s\n", node->cmd[1]);
-// 		print_tree(node, 0, "NODE");
-//         // execute_builtin(token_list, &envlist);
-// 		// printf("%s\n", node->left->token->value);
-// 		// write(1, "hh\n", 3);
-// 		// char *full_path = find_cmd_path(node->left->token->value, env);
-// 		// if (!full_path)
-// 		// {
-// 		// 	perror("command not found");
-// 		// 	return (1);
-// 		// }
-
-// 		// printf("Trying to exec: %s\n", full_path); // optional for debug
-
-// 		// if (execve(full_path, &node->left->token->value, env) == -1)
-// 		// {
-// 		// 	perror("execve failed");
-// 		// 	free(full_path);
-// 		// 	return (1);
-// 		// }
-
-// 		// free(full_path); // will never reach here if execve succeeds
-// // 	return (0);
-// 		// t_token *current = token_list;
-// 		// while (current)
-// 		// {
-// 		// 	printf("token->value = %s		token->type = %d\n", current->value, current->type);
-// 		// 	current = current->next;
-// 		// }
-// 	}
-// 	return (0);
-// }
-
-// int	main(int argc, char **argv, char **env)
-// {
-//     (void)argc;
-//     (void)argv;
-// 	(void)env;
-//     t_token *token_list = NULL;
-//     // int pipe_fd[MAX_PIPES][2];
-//     // t_data data;
-// 	char	*input;
-// 	t_lexer	*lexer;
-// 	t_token	*token;
-//     // int status;
-//     signal(SIGQUIT, SIG_IGN);
-//     signal(SIGINT, handler);
-//     t_env *envlist = init_env(env);
-
-//     rl_catch_signals = 0;
-// 	while (1)
-// 	{
-// 		input = readline("minishell> ");
-//          if (!input)
-//         {
-//             write(1, "exit\n", 5);
-//             exit(0);
-//         }
-//         if (input[0] == '\0')
-//         {
-//             free(input);
-//             continue;
-//         }
-//         if (input)
-//         {
-//             add_history(input); 
-//             lexer = initialize_lexer(input);
-//             token_list = NULL;
-//             while (lexer->position < lexer->lenght)
-//             {
-//                 token = get_next_token(lexer);
-//                 if (!token)
-//                     continue ;
-//                 token->type = token_type(token);
-//                 append_token(&token_list, token);
-//             }
-//             parse_op(token_list);
-//             free(input);
-//         }
-// 	}
-// 	return (0);
-// }

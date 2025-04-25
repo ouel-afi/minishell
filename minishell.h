@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 12:58:09 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/24 17:03:18 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/04/25 16:21:07 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,9 @@ typedef struct s_env
 }	t_env;
 
 
+void merge_adjacent_quoted_tokens(t_token **tokens);
+void	print_linked_list(t_token *token_list);
+void join_tokens(t_token *token);
 void	print_tree(t_tree *node, int depth, const char *side);
 //****************************************parse********************************************************************************
 t_lexer	*initialize_lexer(char *input);
