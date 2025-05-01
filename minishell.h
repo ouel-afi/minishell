@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 12:58:09 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/25 16:21:07 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/01 16:44:47 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ typedef struct s_lexer {
 
 typedef enum s_type {
     CMD = 1,
-	PIPE,
+	PIPE,	
 	SINGLE_QUOTE,
 	DOUBLE_QUOTE,
     REDIR_IN,
@@ -44,8 +44,8 @@ typedef enum s_type {
     HEREDOC,
     OPEN_PAREN,
     CLOSE_PAREN,
-	OR,
-	AND
+	OR,		
+	AND		
 } t_type;
 
 typedef struct s_token {
@@ -74,7 +74,9 @@ typedef struct s_env
 }	t_env;
 
 
-void merge_adjacent_quoted_tokens(t_token **tokens);
+int	check_errors(t_token *token);
+int calculate_cmd(t_token *token);
+void merge_tokens(t_token **tokens);
 void	print_linked_list(t_token *token_list);
 void join_tokens(t_token *token);
 void	print_tree(t_tree *node, int depth, const char *side);

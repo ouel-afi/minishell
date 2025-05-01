@@ -132,7 +132,6 @@ int execute_tree(t_tree *node, char **env, t_env *envlist, t_token *token)
     // }
     if (node->type == PIPE)
     {
-        write(1, "pipe\n", 5);
         return (execute_pipe(node, env, envlist, token));
     }
     else if (node->type == CMD)

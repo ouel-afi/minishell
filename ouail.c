@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/04/25 16:38:57 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/01 16:55:27 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,8 +123,8 @@ t_token	*handle_quote(t_lexer *lexer, char quote)
 		lexer->position++;
 	if (lexer->position >= lexer->lenght)
 	{
-		perror("unclosed quote\n");
-		return (NULL);
+		ft_putstr_fd("bash : syntax unclosed quote", 2);
+		return (0);
 	}
 	lenght = lexer->position - start;
 	value = ft_substr(lexer->input, start, lenght);
@@ -189,7 +189,6 @@ t_token *handle_word(t_lexer *lexer)
         if (lexer->input[lexer->position] == '\'' || 
             lexer->input[lexer->position] == '"')
         {
-            // Handle quoted section
             char quote = lexer->input[lexer->position++];
             start = lexer->position;
             in_quotes = 1;
@@ -201,7 +200,7 @@ t_token *handle_word(t_lexer *lexer)
             if (lexer->position >= lexer->lenght)
             {
                 free(result);
-                return NULL;  // Unclosed quote
+                return NULL;
             }
 
             temp = ft_substr(lexer->input, start, lexer->position - start);
@@ -212,20 +211,15 @@ t_token *handle_word(t_lexer *lexer)
             lexer->position++;
             in_quotes = 0;
         }
-        else if (!in_quotes && strchr("|<>()&", lexer->input[lexer->position]))
-        {
-            break;  // Stop at special characters
-        }
+        else if (!in_quotes && ft_strchr("|<>()&", lexer->input[lexer->position]))
+			break;
         else
         {
-            // If we were in quotes and now see non-space text, break to make new token
             if (in_quotes)
                 break;
-
-            // Handle regular characters
             start = lexer->position;
             while (lexer->position < lexer->lenght &&
-                   !strchr("\"'|<>()& ", lexer->input[lexer->position]))
+                   !ft_strchr("\"'|<>()& ", lexer->input[lexer->position]))
                 lexer->position++;
 
             temp = ft_substr(lexer->input, start, lexer->position - start);
@@ -329,10 +323,10 @@ void append_token(t_token **head, t_token *token)
     tmp->next = token;
 }
 
-void merge_adjacent_quoted_tokens(t_token **tokens)
+void merge_tokens(t_token **tokens)
 {
     t_token *current = *tokens;
-    t_token *prev = NULL;
+    t_token *tmp = NULL;
 
     while (current != NULL && current->next != NULL)
     {
@@ -343,25 +337,22 @@ void merge_adjacent_quoted_tokens(t_token **tokens)
              current->next->type == DOUBLE_QUOTE))
         {
             char *merged_value = ft_strjoin(current->value, current->next->value);
-            // free(current->value);
             current->value = merged_value;
             if (current->type == CMD || current->next->type == CMD)
                 current->type = CMD;
             current->has_space = current->next->has_space;
             t_token *to_delete = current->next;
             current->next = to_delete->next;
-            // free(to_delete->value);
-            // free(to_delete);
         }
         else
         {
-            prev = current;
+            tmp = current;
             current = current->next;
         }
     }
 }
 
-t_tree *create_tree_node(t_token *token, char **cmd)
+t_tree *create_tree_node(t_token *token, char **cmd, t_token *redir)
 {
 	t_tree	*node;
 	node = malloc(sizeof(t_tree));
@@ -369,6 +360,8 @@ t_tree *create_tree_node(t_token *token, char **cmd)
 		return (NULL);
 	if (cmd != NULL)
 		node->cmd = cmd;
+	if (redir)
+		node->redir = redir;
 	node->has_space = token->has_space;
 	node->type = token->type;
 	node->value = token->value;
@@ -510,26 +503,40 @@ t_token *sub_left(t_token *token, t_token *opr)
 // 	return create_tree_node(token, value);
 // }
 
-#define MAX_ARGS     100
-
 t_tree *parse_cmd(t_token *token)
 {
+	t_token *redir = NULL;
+	int last_type = 0;
 	t_token *tmp = token;
-	char **cmd_args = malloc(sizeof(char *) * (MAX_ARGS + 1));
+	int nb_cmd = calculate_cmd(tmp);
+	char **cmd_args = malloc(sizeof(char *) * (nb_cmd + 1));
 	int i = 0;
-
-	// if (!cmd_args)
-	// 	return NULL;
-
-	while (tmp && (tmp->type == 1 || tmp->type == 3 || tmp->type == 4))
+	if (!cmd_args)
+		return NULL;
+	while (tmp)
 	{
-		cmd_args[i] = ft_strdup(tmp->value);
-		i++;
-		tmp = tmp->next;
+		if (tmp->type == 9 || tmp->type == 10)
+		{
+			printf("bash : syntax error parenthesis\n");
+			return NULL;
+		}
+		if (tmp->type == 1 || tmp->type == 3 || tmp->type == 4)
+		{
+			cmd_args[i] = ft_strdup(tmp->value);
+			i++;
+			tmp = tmp->next;	
+		}
+		else if (tmp->next)
+		{
+			last_type = tmp->type;
+			tmp = tmp->next;
+			redir = create_token(tmp->value, 0, 0);
+			redir->type = last_type;
+			tmp = tmp->next;
+		}
 	}
 	cmd_args[i] = NULL;
-
-	return create_tree_node(token, cmd_args);
+	return create_tree_node(token, cmd_args, redir);
 }
 
 t_tree	*parse_paren(t_token *token)
@@ -554,7 +561,7 @@ t_tree	*parse_paren(t_token *token)
 	}
 	if (paren != 0)
 	{
-		printf("Syntax error: unmatched parenthesis\n");
+		printf("bash : syntax unmatched parenthesis\n");
 		return NULL;
 	}
 	t_token *sub_token = sub_left(token->next, current);
@@ -570,7 +577,7 @@ t_tree	*parse_pipes(t_token *token)
 
 	if (pipe)
 	{
-		t_tree *node = create_tree_node(pipe, NULL);
+		t_tree *node = create_tree_node(pipe, NULL, NULL);
 		left_token = sub_left(tmp, pipe);
 		right_token = pipe->next;
 		node->left = parse_pipes(left_token);
@@ -589,7 +596,7 @@ t_tree	*parse_op(t_token *token)
 
 	if (opr)
 	{
-		t_tree *node = create_tree_node(opr, NULL);
+		t_tree *node = create_tree_node(opr, NULL, NULL);
 		left_token = sub_left(tmp, opr);
 		right_token = opr->next;
 		node->left = parse_op(left_token);
@@ -597,4 +604,38 @@ t_tree	*parse_op(t_token *token)
 		return (node);
 	}
 	return (parse_pipes(token));
+}
+
+int calculate_cmd(t_token *token)
+{
+	t_token *tmp = token;
+	int count = 0;
+	while(tmp)
+	{
+		if (tmp->type == 1 || tmp->type == 3 || tmp->type == 4)
+			count++;
+		if (tmp->type == 5 || tmp->type == 6 || tmp->type == 7 || tmp->type == 8)
+			tmp = tmp->next;
+		tmp = tmp->next;
+	}
+	return (count);
+}
+int	check_errors(t_token *token)
+{
+	t_token *tmp = token;
+	print_linked_list(tmp);
+	if (tmp->type == 2 || tmp->type == 11 || tmp->type == 12){
+		printf("bash: syntax error near unexpected token `%s'\n", token->value);
+		return (1);
+	}
+	while(tmp)
+	{
+		write(1,"1\n", 2);
+		if ((tmp->type != 1 || tmp->type != 3 || tmp->type != 4) && !tmp->next){
+			printf("bash: syntax error near unexpected token `newline'\n");
+			return(1);
+		}
+		tmp = tmp->next;
+	}
+	return 0;
 }

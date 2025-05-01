@@ -1,39 +1,49 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/25 18:28:40 by ouel-afi          #+#    #+#             */
+/*   Updated: 2025/05/01 16:53:06 by ouel-afi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-// Function to free token list
-void free_tokens(t_token *tokens)
-{
-    t_token *current = tokens;
-    t_token *next;
+// void free_tokens(t_token *tokens)
+// {
+//     t_token *current = tokens;
+//     t_token *next;
 
-    while (current != NULL)
-    {
-        next = current->next;
-        free(current->value);
-        free(current);
-        current = next;
-    }
-}
+//     while (current != NULL)
+//     {
+//         next = current->next;
+//         free(current->value);
+//         free(current);
+//         current = next;
+//     }
+// }
 
-// Function to free AST tree
-void free_tree(t_tree *node)
-{
-    if (node == NULL)
-        return;
+// void free_tree(t_tree *node)
+// {
+//     if (node == NULL)
+//         return;
     
-    free_tree(node->left);
-    free_tree(node->right);
+//     free_tree(node->left);
+//     free_tree(node->right);
     
-    if (node->cmd)
-    {
-        for (int i = 0; node->cmd[i]; i++)
-            free(node->cmd[i]);
-        free(node->cmd);
-    }
+//     if (node->cmd)
+//     {
+//         for (int i = 0; node->cmd[i]; i++)
+//             free(node->cmd[i]);
+//         free(node->cmd);
+//     }
     
-    free(node->value);
-    free(node);
-}
+//     free(node->value);
+//     free(node);
+// }
 
 void	handler(int sig)
 {
@@ -51,10 +61,11 @@ int main(int argc, char **argv, char **env)
     t_token *token;
     t_token *token_list = NULL;
     t_tree  *node = NULL;
-    t_env   *envlist = init_env(env);
+    // t_env   *envlist = init_env(env);
 
     (void)argc;
     (void)argv;
+	(void)env;
     signal(SIGQUIT, SIG_IGN);
     signal(SIGINT, handler);
     rl_catch_signals = 0;
@@ -73,37 +84,27 @@ int main(int argc, char **argv, char **env)
             continue;
         }
         add_history(input);
-        
-        // Initialize lexer and token list
         lexer = initialize_lexer(input);
         token_list = NULL;
-        
-        // Tokenization loop
         while (lexer->position < lexer->lenght)
         {
             token = get_next_token(lexer);
-            if (!token)
-                continue;
+            if (token == NULL)
+                break ;
             token->type = token_type(token);
             append_token(&token_list, token);
         }
-        
-        // Print raw tokens for debugging
-        // print_linked_list(token_list);
-        
-        // Merge adjacent quoted tokens
-        merge_adjacent_quoted_tokens(&token_list);
-        
-        // Parse and execute
+		if (!token_list)
+			continue ;
+        merge_tokens(&token_list);
+		// print_linked_list(token_list);
+		if (check_errors(token_list) == 1)
+			continue;
         node = parse_op(token_list);
-        print_tree(node, 0, "NODE");
-        execute_tree(node, env, envlist, token_list);
-        
-        // Cleanup
-        // free(input);
-        // free(lexer);
-        // free_tokens(token_list);  // You'll need to implement this
-        // free_tree(node);          // You'll need to implement this
+		if(!node)
+			continue;
+        // // print_tree(node, 0, "NODE");
+        // execute_tree(node, env, envlist, token_list);
     }
     return (0);
 }
