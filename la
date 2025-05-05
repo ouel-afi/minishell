@@ -3,6 +3,7 @@ builtin.c
 check_path.c
 exec.c
 file
+la
 libft
 ls
 main.c

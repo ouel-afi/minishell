@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/01 16:55:27 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:02:56 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,11 @@ void	print_tree(t_tree *node, int depth, const char *side)
 		for (int i = 0; node->cmd[i]; i++)
 			printf(" '%s'", node->cmd[i]);
 	}
+	// if (node->redir)
+	// {
+	// 	printf(" | redir :");
+	// 	print_linked_list(node->redir);
+	// }
 	printf("\n");
 
 	print_tree(node->left, depth + 1, "L");
@@ -123,7 +128,7 @@ t_token	*handle_quote(t_lexer *lexer, char quote)
 		lexer->position++;
 	if (lexer->position >= lexer->lenght)
 	{
-		ft_putstr_fd("bash : syntax unclosed quote", 2);
+		ft_putstr_fd("bash : syntax error unclosed quote\n", 2);
 		return (0);
 	}
 	lenght = lexer->position - start;
@@ -331,10 +336,12 @@ void merge_tokens(t_token **tokens)
     while (current != NULL && current->next != NULL)
     {
         if (current->has_space == 0 && 
-            (current->type == SINGLE_QUOTE || 
+            ((current->type == SINGLE_QUOTE || 
              current->type == DOUBLE_QUOTE ||
-             current->next->type == SINGLE_QUOTE ||
-             current->next->type == DOUBLE_QUOTE))
+			 current->type == 1) &&
+             (current->next->type == SINGLE_QUOTE ||
+             current->next->type == DOUBLE_QUOTE ||
+			 current->next->type == 1)))
         {
             char *merged_value = ft_strjoin(current->value, current->next->value);
             current->value = merged_value;
@@ -546,6 +553,7 @@ t_tree	*parse_paren(t_token *token)
 	size_t	paren = 0;
 	if (tmp->type != 9)
 		return(parse_cmd(token));
+	print_linked_list(tmp);
 	while (tmp)
 	{
 		if (tmp->type == 9)
@@ -565,6 +573,10 @@ t_tree	*parse_paren(t_token *token)
 		return NULL;
 	}
 	t_token *sub_token = sub_left(token->next, current);
+	if(!sub_token){
+		printf("bash: syntax error near unexpected token `)'\n");
+		return NULL;
+	}
 	return(parse_op(sub_token));
 }
 
@@ -623,19 +635,39 @@ int calculate_cmd(t_token *token)
 int	check_errors(t_token *token)
 {
 	t_token *tmp = token;
-	print_linked_list(tmp);
+	// print_linked_list(tmp);
 	if (tmp->type == 2 || tmp->type == 11 || tmp->type == 12){
 		printf("bash: syntax error near unexpected token `%s'\n", token->value);
 		return (1);
 	}
 	while(tmp)
 	{
-		write(1,"1\n", 2);
-		if ((tmp->type != 1 || tmp->type != 3 || tmp->type != 4) && !tmp->next){
+		if ((tmp->type == 2 || tmp->type == 5 
+			|| tmp->type == 6 || tmp->type == 7 
+			|| tmp->type == 8 || tmp->type == 9 
+			|| tmp->type == 11 || tmp->type == 12) && !tmp->next)
+		{
 			printf("bash: syntax error near unexpected token `newline'\n");
 			return(1);
 		}
+		if (tmp->type != 1 && tmp->type != 3 && tmp->type != 4 && tmp->next && tmp->next->type == 10)
+		{
+			printf("bash: syntax error near unexpected token `)'\n");
+			return(1);
+		}
+		if ((tmp->type == 2 || tmp->type == 5 
+			|| tmp->type == 6 || tmp->type == 7 
+			|| tmp->type == 8 || tmp->type == 11 
+			|| tmp->type == 12 ) && (tmp->next->type == 2 || tmp->next->type == 5 
+			|| tmp->next->type == 6 || tmp->next->type == 7 
+			|| tmp->next->type == 8 || tmp->next->type == 11 
+			|| tmp->next->type == 12 || tmp->next->value[0] == '&'))
+			{
+				printf("bash: syntax error near unexpected token `%s'\n", tmp->next->value);
+				return (1);
+			}
 		tmp = tmp->next;
 	}
+
 	return 0;
 }

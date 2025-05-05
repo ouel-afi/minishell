@@ -1,6 +1,6 @@
-echo (ls)
+echo (ls)			
 
-(echo 
+(echo 			
 
 echo )
 
@@ -12,3 +12,14 @@ echo <
 
 echo < |
 
+ls >>> a		/**/
+
+< < ls			/**/
+
+()
+
+( )
+
+(ls <<)
+
+(echo "dkd")

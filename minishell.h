@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 12:58:09 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/01 16:44:47 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/05 15:23:23 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ typedef enum s_type {
     OPEN_PAREN,
     CLOSE_PAREN,
 	OR,		
-	AND		
+	AND
 } t_type;
 
 typedef struct s_token {
