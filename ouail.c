@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/05 16:02:56 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/05 19:01:06 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -650,7 +650,7 @@ int	check_errors(t_token *token)
 			printf("bash: syntax error near unexpected token `newline'\n");
 			return(1);
 		}
-		if (tmp->type != 1 && tmp->type != 3 && tmp->type != 4 && tmp->next && tmp->next->type == 10)
+		if (tmp->type != 1 && tmp->type != 3 && tmp->type != 4 && tmp->type != 10 && tmp->next && tmp->next->type == 10)
 		{
 			printf("bash: syntax error near unexpected token `)'\n");
 			return(1);
@@ -668,6 +668,5 @@ int	check_errors(t_token *token)
 			}
 		tmp = tmp->next;
 	}
-
 	return 0;
 }
