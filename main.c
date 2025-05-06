@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 18:28:40 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/05 16:28:17 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/06 16:37:17 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ int main(int argc, char **argv, char **env)
         node = parse_op(token_list);
 		if(!node)
 			continue;
-        // print_tree(node, 0, "NODE");
+        print_tree(node, 0, "NODE");
         // execute_tree(node, env, envlist, token_list);
     }
     return (0);

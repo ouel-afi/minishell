@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/05 19:01:06 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/06 16:54:31 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,11 @@ void	print_tree(t_tree *node, int depth, const char *side)
 		for (int i = 0; node->cmd[i]; i++)
 			printf(" '%s'", node->cmd[i]);
 	}
-	// if (node->redir)
-	// {
-	// 	printf(" | redir :");
-	// 	print_linked_list(node->redir);
-	// }
+	if (node->redir)
+	{
+		printf("\nREDIR:    ");
+		print_linked_list(node->redir);
+	}
 	printf("\n");
 
 	print_tree(node->left, depth + 1, "L");
@@ -444,74 +444,10 @@ t_token *sub_left(t_token *token, t_token *opr)
 	return (head);
 }
 
-// t_tree *parse_cmd(t_token *token)
-// {
-// 	t_token *tmp = token;
-// 	char **value = NULL;
-// 	int i = 0;
-// 	value = malloc(sizeof(char *) * 1000);
-// 	if (!value)
-// 		return NULL;
-// 	if (tmp && !tmp->next)
-// 	{
-// 		value[i] = tmp->value;
-// 		i++;
-// 	}
-// 	while (tmp->next && tmp->next->type == 1)
-// 	{
-// 		// write(1, "enter\n", 6);
-// 		value[i] = tmp->value;
-// 		i++;
-// 		tmp = tmp->next;
-
-// 		if (!tmp->next || tmp->next->type != 1) {
-// 			value[i] = tmp->value;
-// 			i++;
-// 			tmp = tmp->next;
-// 			break;
-// 		}
-// 	}
-// 	if (token->next && token->next->type != 1)
-// 	{
-// 		write(1, "1\n", 2);
-// 		tmp = token->next;
-// 		t_token *head = NULL;
-// 		t_token *current = NULL;
-
-// 		while (tmp && tmp->next)
-// 		{
-// 			t_token *redir_token = tmp;
-// 			t_token *value_token = tmp->next;
-
-// 			t_token *new_token = malloc(sizeof(t_token));
-// 			if (!new_token)
-// 				return NULL;
-
-// 			new_token->type = redir_token->type;
-// 			new_token->value = ft_strdup(value_token->value);
-// 			new_token->next = NULL;
-
-// 			if (!head)
-// 			{
-// 				head = new_token;
-// 				current = new_token;
-// 			}
-// 			else
-// 			{
-// 				current->next = new_token;
-// 				current = current->next;
-// 			}
-
-// 			tmp = value_token->next;
-// 		}
-// 		return create_tree_node(head, NULL);
-// 	}
-// 	value[i] = NULL;
-// 	return create_tree_node(token, value);
-// }
-
 t_tree *parse_cmd(t_token *token)
 {
+	t_token *redir_tail = NULL;
+	t_token *new_redir = NULL;
 	t_token *redir = NULL;
 	int last_type = 0;
 	t_token *tmp = token;
@@ -537,8 +473,19 @@ t_tree *parse_cmd(t_token *token)
 		{
 			last_type = tmp->type;
 			tmp = tmp->next;
-			redir = create_token(tmp->value, 0, 0);
-			redir->type = last_type;
+			new_redir = create_token(tmp->value, 0, 0);
+			new_redir->type = last_type;
+			new_redir->next = NULL;
+			if (!redir)
+			{
+				redir = new_redir;
+				redir_tail = redir;
+			}
+			else
+			{
+				redir_tail->next = new_redir;
+				redir_tail = new_redir;
+			}
 			tmp = tmp->next;
 		}
 	}
