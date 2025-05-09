@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 12:07:43 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/06 16:54:31 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/09 18:37:52 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,7 @@ t_token	*handle_operations(t_lexer *lexer, char *oper, int i)
 // 	return (create_token(word, word[0], 0));
 // }
 
-t_token *handle_word(t_lexer *lexer)
+t_token * handle_word(t_lexer *lexer)
 {
     char    *result = ft_strdup("");
     char    *temp = NULL;
@@ -204,8 +204,9 @@ t_token *handle_word(t_lexer *lexer)
 
             if (lexer->position >= lexer->lenght)
             {
+				ft_putstr_fd("bash : syntax error near unexpected token `)'\n", 2);
                 free(result);
-                return NULL;
+                return 0;
             }
 
             temp = ft_substr(lexer->input, start, lexer->position - start);
@@ -216,8 +217,10 @@ t_token *handle_word(t_lexer *lexer)
             lexer->position++;
             in_quotes = 0;
         }
-        else if (!in_quotes && ft_strchr("|<>()&", lexer->input[lexer->position]))
+        else if (!in_quotes && ft_strchr("|<>()&", lexer->input[lexer->position])){
+			write(1, "1\n", 2);
 			break;
+		}
         else
         {
             if (in_quotes)
@@ -245,7 +248,6 @@ t_token	*get_next_token(t_lexer *lexer)
 	char	*current;
 
 	skip_whitespace(lexer);
-	
 	if (lexer->position >= lexer->lenght)
 		return (NULL);
 	current = lexer->input + lexer->position;
@@ -495,12 +497,15 @@ t_tree *parse_cmd(t_token *token)
 
 t_tree	*parse_paren(t_token *token)
 {
+	write(1, "3\n", 2);
 	t_token *current;
 	t_token *tmp = token;
 	size_t	paren = 0;
-	if (tmp->type != 9)
+	if (tmp->type != 9){
+		write(1, "4\n", 2);
 		return(parse_cmd(token));
-	print_linked_list(tmp);
+	}
+	// print_linked_list(tmp);
 	while (tmp)
 	{
 		if (tmp->type == 9)
@@ -520,10 +525,12 @@ t_tree	*parse_paren(t_token *token)
 		return NULL;
 	}
 	t_token *sub_token = sub_left(token->next, current);
+	// print_linked_list(sub_token);
 	if(!sub_token){
-		printf("bash: syntax error near unexpected token `)'\n");
+		printf("bash: syntax error unclosed quote\n");
 		return NULL;
 	}
+
 	return(parse_op(sub_token));
 }
 
@@ -548,6 +555,7 @@ t_tree	*parse_pipes(t_token *token)
 
 t_tree	*parse_op(t_token *token)
 {
+	write(1, "2\n", 2);
 	t_token *opr = get_last_opr(token);
 	t_token *left_token = NULL;
 	t_token *right_token = NULL;

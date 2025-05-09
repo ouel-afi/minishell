@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 18:28:40 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/06 16:37:17 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/09 18:31:15 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ int main(int argc, char **argv, char **env)
 		if (!token_list)
 			continue ;
         merge_tokens(&token_list);
+		// print_linked_list(token_list);
 		if (check_errors(token_list) == 1)
 			continue;
 		// print_linked_list(token_list);
