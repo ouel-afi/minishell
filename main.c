@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 18:28:40 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/13 12:02:48 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:30:05 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ int main(int argc, char **argv, char **env)
     t_token *token;
     t_token *token_list = NULL;
     t_tree  *node = NULL;
-    // t_env   *envlist = init_env(env);
 
     (void)argc;
     (void)argv;
@@ -69,7 +68,6 @@ int main(int argc, char **argv, char **env)
     signal(SIGQUIT, SIG_IGN);
     signal(SIGINT, handler);
     rl_catch_signals = 0;
-    
     while (1)
     {
         input = readline("minishell> ");
@@ -99,15 +97,11 @@ int main(int argc, char **argv, char **env)
 		if (check_parenthesis(token_list) != 0)
 			continue;
         merge_tokens(&token_list);
-		// print_linked_list(token_list);
 		if (check_errors(token_list) == 1)
 			continue;
-		// print_linked_list(token_list);
         node = parse_op(token_list);
 		if(!node)
 			continue;
-        print_tree(node, 0, "NODE");
-        // execute_tree(node, env, envlist, token_list);
     }
     return (0);
 }

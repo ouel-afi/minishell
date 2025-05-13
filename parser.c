@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:17:05 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/12 21:00:52 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/13 16:17:47 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,40 +113,22 @@ t_tree	*parse_pipes(t_token *token)
 	return (parse_paren(token));
 }
 
-t_tree	*parse_paren(t_token *token)
+int	calculate_cmd(t_token *token)
 {
-	t_token	*current;
 	t_token	*tmp;
-	t_token	*sub_token;
-	size_t	paren;
+	int		count;
 
 	tmp = token;
-	paren = 0;
-	if (tmp->type != 9)
-		return (parse_cmd(token));
+	count = 0;
 	while (tmp)
 	{
-		if (tmp->type == 9)
-			paren++;
-		else if (tmp->type == 10)
-			paren--;
-		if (paren == 0)
-		{
-			current = tmp;
-			break ;
-		}
+		if (tmp->type == 1 || tmp->type == 3
+			|| tmp->type == 4)
+			count++;
+		if (tmp->type == 5 || tmp->type == 6
+			|| tmp->type == 7 || tmp->type == 8)
+			tmp = tmp->next;
 		tmp = tmp->next;
 	}
-	if (paren != 0)
-	{
-		printf("bash : syntax unmatched parenthesis\n");
-		return (NULL);
-	}
-	sub_token = sub_left(token->next, current);
-	if (!sub_token)
-	{
-		printf("bash: syntax error unclosed quote\n");
-		return (NULL);
-	}
-	return (parse_op(sub_token));
+	return (count);
 }

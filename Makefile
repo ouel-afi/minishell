@@ -37,7 +37,7 @@
 
 
 
-SRCS =  main.c lexer.c tokenizer.c parser.c parser2.c create_tree.c checker.c checker2.c handler.c print.c
+SRCS =  main.c lexer.c tokenizer.c parser.c parser2.c create_tree.c checker.c checker2.c handler.c handle_word.c print.c
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
