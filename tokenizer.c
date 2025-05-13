@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:11:54 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/13 13:20:36 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/13 20:20:48 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ t_token	*create_token(char *value, char quote, int has_space)
 		token->type = 3;
 	else if (quote == '"')
 		token->type = 4;
+	else
+		token->type = 0;
 	token->has_space = has_space;
 	return (token);
 }

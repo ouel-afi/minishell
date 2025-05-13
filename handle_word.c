@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 13:17:48 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/13 13:18:02 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/13 20:26:12 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ void	handle_word_quote(char **result, t_lexer *lexer, int *in_quotes)
 	}
 	temp = ft_substr(lexer->input, start, lexer->position - start);
 	new_result = ft_strjoin(*result, temp);
+	free(*result);
 	*result = new_result;
 	lexer->position++;
 	*in_quotes = 0;
@@ -59,6 +60,8 @@ void	handle_plain_word(char **result, t_lexer *lexer)
 		lexer->position++;
 	temp = ft_substr(lexer->input, start, lexer->position - start);
 	new_result = ft_strjoin(*result, temp);
+	free(temp);
+	free(*result);
 	*result = new_result;
 }
 
@@ -67,8 +70,11 @@ t_token	*handle_word(t_lexer *lexer)
 	char	*result;
 	int		has_space;
 	int		in_quotes;
+	t_token *token;
 
 	result = ft_strdup("");
+	if (!result)
+		return NULL;
 	in_quotes = 0;
 	while (lexer->position < lexer->lenght && !is_space(lexer))
 	{
@@ -79,14 +85,14 @@ t_token	*handle_word(t_lexer *lexer)
 		else
 			handle_plain_word(&result, lexer);
 	}
+	// ll();
 	if (lexer->position < lexer->lenght && lexer->input[lexer->position] == ' ')
 		has_space = 1;
 	else
 		has_space = 0;
-	if (in_quotes)
-		return (create_token(result, 4, has_space));
-	return (create_token(result, 1, has_space));
-		// type = 4;
-	// else
-		// 	type = 1;
+	// if (in_quotes)
+	// 	return (create_token(result, 4, has_space));
+	token = create_token(result, 0, has_space);
+	free(result);
+	return (token);
 }

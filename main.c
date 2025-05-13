@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/25 18:28:40 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/13 16:30:05 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/13 20:26:29 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,10 @@ void	handler(int sig)
 	rl_redisplay();
 }
 
+void ll(){
+	system("leaks minishell");
+}
+
 int main(int argc, char **argv, char **env)
 {
     char    *input;
@@ -68,6 +72,7 @@ int main(int argc, char **argv, char **env)
     signal(SIGQUIT, SIG_IGN);
     signal(SIGINT, handler);
     rl_catch_signals = 0;
+	atexit(ll);
     while (1)
     {
         input = readline("minishell> ");
@@ -86,6 +91,7 @@ int main(int argc, char **argv, char **env)
         token_list = NULL;
         while (lexer->position < lexer->lenght)
         {
+			// ll();
             token = get_next_token(lexer);
             if (token == NULL)
                 break ;
@@ -99,6 +105,7 @@ int main(int argc, char **argv, char **env)
         merge_tokens(&token_list);
 		if (check_errors(token_list) == 1)
 			continue;
+		print_linked_list(token_list);
         node = parse_op(token_list);
 		if(!node)
 			continue;
