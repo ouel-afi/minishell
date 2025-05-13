@@ -6,31 +6,62 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:14:45 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/12 20:16:36 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/13 13:17:06 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	check_parenthesis(t_token *token)
+int	invalid_start(t_token *token)
 {
-	int		paren;
-	t_token	*tmp;
-
-	paren = 0;
-	tmp = token;
-	while (tmp)
+	if (token->type == 2 || token->type == 11
+		|| token->type == 12)
 	{
-		if (tmp->type == 9)
-			paren++;
-		else if (tmp->type == 10)
-			paren--;
-		tmp = tmp->next;
+		printf("bash: syntax error near unexpected token `%s'\n", token->value);
+		return (1);
 	}
-	if (paren != 0)
+	return (0);
+}
+
+int	newline_after_op(t_token *token)
+{
+	if ((token->type == 2 || token->type == 5 
+			|| token->type == 6 || token->type == 7 
+			|| token->type == 8 || token->type == 9 
+			|| token->type == 11 || token->type == 12) && !token->next)
 	{
-		ft_putstr_fd("bash : syntax unmatched parenthesis\n", 2);
-		return (paren);
+		printf("bash: syntax error near unexpected token `newline'\n");
+		return (1);
+	}
+	return (0);
+}
+
+int	two_operator(t_token *token)
+{
+	if ((token->type == 2 || token->type == 5 
+			|| token->type == 6 || token->type == 7 
+			|| token->type == 8 || token->type == 11 
+			|| token->type == 12) && token->next
+		&& (token->next->type == 2 || token->next->type == 5 
+			|| token->next->type == 6 || token->next->type == 7 
+			|| token->next->type == 8 || token->next->type == 11 
+			|| token->next->type == 12 || token->next->value[0] == '&'))
+	{
+		printf("bash: syntax error near unexpected token `%s'\n",
+			token->next->value);
+		return (1);
+	}
+	return (0);
+}
+
+int	opr_before_close_paren(t_token *token)
+{
+	if ((token->type != 1 && token->type != 3
+			&& token->type != 4 && token->type != 10)
+		&& token->next && token->next->type == 10)
+	{
+		printf("bash: syntax error near unexpected token `)'\n");
+		return (1);
 	}
 	return (0);
 }
@@ -39,43 +70,21 @@ int	check_errors(t_token *token)
 {
 	t_token	*tmp;
 
-	tmp = token;
-	if (tmp->type == 2 || tmp->type == 11
-		|| tmp->type == 12)
-	{
-		printf("bash: syntax error near unexpected token `%s'\n", token->value);
+	if (!token)
+		return (0);
+	if (invalid_start(token))
 		return (1);
-	}
+	tmp = token;
 	while (tmp)
 	{
-		if ((tmp->type == 2 || tmp->type == 5 
-				|| tmp->type == 6 || tmp->type == 7 
-				|| tmp->type == 8 || tmp->type == 9 
-				|| tmp->type == 11 || tmp->type == 12) && !tmp->next)
-		{
-			printf("bash: syntax error near unexpected token `newline'\n");
+		if (newline_after_op(tmp))
 			return (1);
-		}
-		if (tmp->type != 1 && tmp->type != 3
-			&& tmp->type != 4 && tmp->type != 10
-			&& tmp->next && tmp->next->type == 10)
-		{
-			printf("bash: syntax error near unexpected token `)'\n");
+		if (opr_before_close_paren(tmp))
 			return (1);
-		}
-		if ((tmp->type == 2 || tmp->type == 5 
-				|| tmp->type == 6 || tmp->type == 7 
-				|| tmp->type == 8 || tmp->type == 11 
-				|| tmp->type == 12)
-			&& (tmp->next->type == 2 || tmp->next->type == 5
-				|| tmp->next->type == 6 || tmp->next->type == 7
-				|| tmp->next->type == 8 || tmp->next->type == 11
-				|| tmp->next->type == 12 || tmp->next->value[0] == '&'))
-		{
-			printf("bash: syntax error near unexpected token `%s'\n",
-				tmp->next->value);
+		if (two_operator(tmp))
 			return (1);
-		}
+		if (check_before_open_paren(tmp))
+			return (1);
 		tmp = tmp->next;
 	}
 	return (0);

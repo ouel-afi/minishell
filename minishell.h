@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 12:58:09 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/12 21:04:15 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/13 13:15:46 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ t_tree	*parse_cmd(t_token *token);
 void	print_linked_list(t_token *token_list);
 void	print_tree(t_tree *node, int depth, const char *side);
 int		is_space(t_lexer *lexer);
+int		check_before_open_paren(t_token *token);
 
 //***************************************exec**********************************************
 void update_env(char *name, char *value, t_env **env_list);
