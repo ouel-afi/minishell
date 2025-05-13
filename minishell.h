@@ -6,7 +6,7 @@
 /*   By: ouel-afi <ouel-afi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/03 12:58:09 by ouel-afi          #+#    #+#             */
-/*   Updated: 2025/05/05 15:23:23 by ouel-afi         ###   ########.fr       */
+/*   Updated: 2025/05/12 21:04:15 by ouel-afi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,29 +73,32 @@ typedef struct s_env
 	char **env;
 }	t_env;
 
-
-int	check_errors(t_token *token);
-int calculate_cmd(t_token *token);
-void merge_tokens(t_token **tokens);
-void	print_linked_list(t_token *token_list);
-void join_tokens(t_token *token);
-void	print_tree(t_tree *node, int depth, const char *side);
 //****************************************parse********************************************************************************
+
 t_lexer	*initialize_lexer(char *input);
-int	is_space(t_lexer *lexer);
-void	skip_whitespace(t_lexer *lexer);
-t_token	*create_token(char *value, char quote, int has_space);
+t_token	*get_next_token(t_lexer *lexer);
 t_token	*handle_quote(t_lexer *lexer, char quote);
 t_token	*handle_operations(t_lexer *lexer, char *oper, int i);
 t_token	*handle_word(t_lexer *lexer);
-t_token	*get_next_token(t_lexer *lexer);
-int	cmd_type(t_token *token, int first_cmd);
+t_token	*create_token(char *value, char quote, int has_space);
 t_type	token_type(t_token *token);
-t_token	*get_next_token(t_lexer *lexer);
-void	skip_whitespace(t_lexer *lexer);
-t_token	*handle_quote(t_lexer *lexer, char quote);
 void	append_token(t_token **head, t_token *token);
+int		check_parenthesis(t_token *token);
+void	merge_tokens(t_token **tokens);
+int		check_errors(t_token *token);
 t_tree	*parse_op(t_token *token);
+int		calculate_cmd(t_token *token);
+void	print_linked_list(t_token *token_list);
+void	print_tree(t_tree *node, int depth, const char *side);
+t_tree	*create_tree_node(t_token *token, char **cmd, t_token *redir);
+t_token	*sub_left(t_token *token, t_token *opr);
+t_tree	*parse_pipes(t_token *token);
+t_tree	*parse_paren(t_token *token);
+t_tree	*parse_cmd(t_token *token);
+void	print_linked_list(t_token *token_list);
+void	print_tree(t_tree *node, int depth, const char *side);
+int		is_space(t_lexer *lexer);
+
 //***************************************exec**********************************************
 void update_env(char *name, char *value, t_env **env_list);
 char *get_env_value(char *name, t_env *env_list);

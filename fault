@@ -1,0 +1,2 @@
+( ls | cat -e ) ( ls )
+( ls | cat -e ) > ( f1 )

@@ -37,7 +37,7 @@
 
 
 
-SRCS =  ouail.c exec.c builtin.c tree.c check_path.c main.c
+SRCS =  main.c lexer.c tokenizer.c parser.c parser2.c create_tree.c checker.c handler.c print.c
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
